@@ -1,0 +1,11 @@
+**/node_modules
+**/.git
+**/test*
+**/jest*
+**/__tests__
+**/simple-server.js
+**/test-api.js
+**/scripts/run-tests.sh
+**/model_runs
+**/fortran
+**/bin

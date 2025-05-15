@@ -1,8 +1,10 @@
 let jobQueue;
-try {
-  jobQueue = require('../../lib/queue/jobQueue');
-} catch (error) {
-  console.warn('Job queue not available:', error.message);
+if (process.env.DISABLE_QUEUE_MANAGER !== 'true') {
+  try {
+    jobQueue = require('../../lib/queue/jobQueue');
+  } catch (error) {
+    console.warn('Job queue not available:', error.message);
+  }
 }
 
 export default function handler(req, res) {

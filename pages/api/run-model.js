@@ -1,12 +1,14 @@
 import fs from 'fs';
 import path from 'path';
 
-// Import our job queue system
+// Import our job queue system conditionally
 let jobQueue;
-try {
-  jobQueue = require('../../lib/queue/jobQueue');
-} catch (error) {
-  console.warn('Job queue not available:', error.message);
+if (process.env.DISABLE_QUEUE_MANAGER !== 'true') {
+  try {
+    jobQueue = require('../../lib/queue/jobQueue');
+  } catch (error) {
+    console.warn('Job queue not available:', error.message);
+  }
 }
 
 export default async function handler(req, res) {

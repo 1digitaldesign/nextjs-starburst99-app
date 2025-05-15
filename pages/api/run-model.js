@@ -15,6 +15,13 @@ export default async function handler(req, res) {
   console.log('Run-model API called:', req.method);
   console.log('Request body:', JSON.stringify(req.body, null, 2));
   
+  // Handle OPTIONS request for CORS
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    return res.status(200).end();
+  }
+  
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
@@ -30,9 +37,13 @@ export default async function handler(req, res) {
 
     // Create a unique directory for this run
     const runId = `run-${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
-    const runDir = path.join(process.cwd(), 'model_runs', runId);
+    const modelRunsDir = path.join(process.cwd(), 'model_runs');
+    const runDir = path.join(modelRunsDir, runId);
     
-    // Ensure directory exists
+    // Ensure model_runs directory exists
+    await fs.promises.mkdir(modelRunsDir, { recursive: true });
+    
+    // Ensure specific run directory exists
     await fs.promises.mkdir(runDir, { recursive: true });
 
     // Create input file for Starburst99

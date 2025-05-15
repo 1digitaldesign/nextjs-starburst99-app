@@ -16,11 +16,23 @@ export default async function handler(req, res) {
     
     const runDir = path.join(process.cwd(), 'model_runs', runId);
     
+    // Ensure model_runs directory exists
+    const modelRunsDir = path.join(process.cwd(), 'model_runs');
+    try {
+      await fs.promises.mkdir(modelRunsDir, { recursive: true });
+    } catch (error) {
+      // Directory might already exist, that's okay
+    }
+    
     // Check if directory exists
     try {
       await fs.promises.access(runDir, fs.constants.F_OK);
     } catch (error) {
-      return res.status(404).json({ message: 'Model run not found' });
+      return res.status(404).json({ 
+        message: 'Model run not found',
+        details: 'The requested model run does not exist in the server.',
+        runId
+      });
     }
     
     // Get list of output files

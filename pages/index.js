@@ -4,6 +4,15 @@ import Link from 'next/link'
 import styles from '../styles/Home.module.css'
 
 export default function Home() {
+  const [apiStatus, setApiStatus] = React.useState({ loading: true, data: null });
+
+  React.useEffect(() => {
+    fetch('/api/health')
+      .then(res => res.json())
+      .then(data => setApiStatus({ loading: false, data }))
+      .catch(err => setApiStatus({ loading: false, error: err.message }));
+  }, []);
+
   return (
     <div className={styles.container}>
       <Head>
@@ -20,6 +29,18 @@ export default function Home() {
         <p className={styles.description}>
           A modern web interface for the Starburst99 stellar population synthesis code
         </p>
+
+        {apiStatus.loading ? (
+          <p>Checking API status...</p>
+        ) : apiStatus.error ? (
+          <p style={{ color: 'red' }}>API Error: {apiStatus.error}</p>
+        ) : (
+          <p style={{ color: 'green' }}>
+            API Status: {apiStatus.data?.status} | 
+            Queue: {apiStatus.data?.queueDisabled ? 'Disabled' : 'Enabled'} | 
+            Environment: {apiStatus.data?.environment}
+          </p>
+        )}
 
         <div className={styles.grid}>
           <Link href="/models/new" className={styles.card}>

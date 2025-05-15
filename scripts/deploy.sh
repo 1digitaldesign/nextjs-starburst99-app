@@ -15,17 +15,31 @@ if ! command -v vercel &> /dev/null; then
     npm install -g vercel
 fi
 
-# Set environment variable
-export DISABLE_QUEUE_MANAGER=true
+# Load environment variables from .env.local if it exists
+if [ -f ".env.local" ]; then
+    echo "📄 Loading environment variables from .env.local..."
+    export $(cat .env.local | grep VERCEL_TOKEN | xargs)
+fi
 
-# Deploy to Vercel
-echo "📦 Building and deploying to Vercel..."
-echo "Please log in if prompted:"
-
-vercel --prod --yes \
-  --env DISABLE_QUEUE_MANAGER=true \
-  --name nextjs-starburst99-app \
-  --public
+# Check if VERCEL_TOKEN is provided
+if [ -z "$VERCEL_TOKEN" ]; then
+    echo "⚠️  No VERCEL_TOKEN found. Please set it in .env.local or environment"
+    echo "   You can get a token from: https://vercel.com/account/tokens"
+    echo "   Then add it to .env.local: VERCEL_TOKEN=your_token_here"
+    echo ""
+    echo "Falling back to login mode..."
+    vercel --prod --yes \
+      --env DISABLE_QUEUE_MANAGER=true \
+      --name nextjs-starburst99-app \
+      --public
+else
+    echo "🔑 Using Vercel token for authentication..."
+    vercel --prod --yes \
+      --token "$VERCEL_TOKEN" \
+      --env DISABLE_QUEUE_MANAGER=true \
+      --name nextjs-starburst99-app \
+      --public
+fi
 
 echo "✅ Deployment complete!"
 echo "Your app should be available at: https://nextjs-starburst99-app.vercel.app"

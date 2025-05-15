@@ -26,7 +26,25 @@ This Next.js application is configured for easy deployment to Vercel.
    - Add: `DISABLE_QUEUE_MANAGER` = `true`
 6. Click "Deploy"
 
-### Option 2: Deploy via Vercel CLI
+### Option 2: Deploy via Vercel CLI with Token
+
+1. Get your Vercel token:
+   - Go to [Vercel Account Tokens](https://vercel.com/account/tokens)
+   - Create a new token
+   - Copy the token value
+
+2. Add the token to `.env.local`:
+   ```
+   VERCEL_TOKEN=your_token_here
+   ```
+
+3. Run the deployment script:
+   ```bash
+   cd "/Users/beardoggy/Desktop/2024 WorkSpace/Project Pegasus/Contributor B/quality-issue"
+   ./scripts/deploy.sh
+   ```
+
+### Option 3: Deploy via Vercel CLI with Login
 
 1. Install Vercel CLI (if not already installed):
    ```bash

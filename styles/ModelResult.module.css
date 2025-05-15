@@ -1,0 +1,17 @@
+.container {
+  border: 1px solid #eaeaea;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  background-color: #f9f9f9;
+}
+
+.title {
+  margin-top: 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.dataContainer {
+  margin-top: 1rem;
+}

@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 // Import our job queue system
-import jobQueue from '../../../lib/queue/jobQueue';
+import jobQueue from '../../lib/queue/jobQueue';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {

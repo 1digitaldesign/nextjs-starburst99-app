@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { 
   Chart as ChartJS, 
   CategoryScale, 
@@ -26,6 +26,14 @@ ChartJS.register(
 const ColorEvolution = ({ colorData }) => {
   const [selectedColors, setSelectedColors] = useState(['uMinusB', 'bMinusV', 'vMinusR', 'vMinusK']);
   
+  // Maps from backend property names to our internal property names
+  const propertyMappings = {
+    'uMinusB': ['uMinusB', 'u_minus_b', 'uMinusB', 'u-b'],
+    'bMinusV': ['bMinusV', 'b_minus_v', 'bMinusV', 'b-v'],
+    'vMinusR': ['vMinusR', 'v_minus_r', 'vMinusR', 'v-r'],
+    'vMinusK': ['vMinusK', 'v_minus_k', 'vMinusK', 'v-k']
+  };
+  
   const colorOptions = [
     { id: 'uMinusB', label: 'U-B', color: 'rgb(75, 192, 192)' },
     { id: 'bMinusV', label: 'B-V', color: 'rgb(255, 99, 132)' },
@@ -43,14 +51,54 @@ const ColorEvolution = ({ colorData }) => {
     });
   };
   
+  // Helper function to get the correct property from a data point
+  const getDataValue = (point, colorId) => {
+    // Check if point is null or undefined
+    if (!point) return null;
+    
+    // First try with the exact property name
+    if (typeof point[colorId] !== 'undefined') {
+      return point[colorId];
+    }
+    
+    // Try with property name variations
+    for (const altName of propertyMappings[colorId] || []) {
+      if (typeof point[altName] !== 'undefined') {
+        return point[altName];
+      }
+    }
+    
+    // Handle snake_case vs camelCase variations
+    if (typeof point.age === 'undefined' && typeof point['age'] !== 'undefined') {
+      // Data uses different naming convention, try different formats
+      const snakeCaseId = colorId.replace(/([A-Z])/g, '_$1').toLowerCase();
+      if (typeof point[snakeCaseId] !== 'undefined') {
+        return point[snakeCaseId];
+      }
+    }
+    
+    return null;
+  };
+  
+  // Handle null or undefined colorData
+  if (!colorData || !Array.isArray(colorData) || colorData.length === 0) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.message}>
+          No color evolution data available
+        </div>
+      </div>
+    );
+  }
+  
   // Prepare data for Chart.js
   const chartData = {
-    labels: colorData.map(point => point.age),
+    labels: colorData.map(point => point.age || 0), // Fallback to 0 if age is missing
     datasets: colorOptions
       .filter(color => selectedColors.includes(color.id))
       .map(color => ({
         label: color.label,
-        data: colorData.map(point => point[color.id]),
+        data: colorData.map(point => getDataValue(point, color.id)),
         borderColor: color.color,
         backgroundColor: color.color.replace('rgb', 'rgba').replace(')', ', 0.5)'),
         pointRadius: colorData.length < 50 ? 4 : 2,

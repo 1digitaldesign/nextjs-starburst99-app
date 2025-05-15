@@ -48,18 +48,39 @@ export default function NewModel() {
         }
       };
       
+      console.log('Submitting model config:', modelConfig);
+      
       // Submit to the API
       const response = await axios.post('/api/run-model', modelConfig);
+      console.log('API response:', response.data);
       
-      // Redirect to the results page if successful
+      // Handle different response scenarios
       if (response.data && response.data.runId) {
-        router.push(`/models/results/${response.data.runId}`);
+        if (response.data.status === 'queued') {
+          // Normal flow - model was queued successfully
+          router.push(`/models/results/${response.data.runId}`);
+        } else if (response.data.status === 'created') {
+          // Queue unavailable - show message but still redirect
+          alert(response.data.note || 'Model created but queue unavailable');
+          router.push(`/models/results/${response.data.runId}`);
+        } else {
+          // Unknown status
+          throw new Error(`Unexpected status: ${response.data.status}`);
+        }
       } else {
         throw new Error('No run ID returned from API');
       }
     } catch (err) {
       console.error('Error submitting model:', err);
-      setError(err.response?.data?.message || err.message || 'Failed to run model');
+      console.error('Error response:', err.response);
+      console.error('Error details:', err.response?.data);
+      
+      // Show more detailed error message
+      const errorMessage = err.response?.data?.details 
+        ? `${err.response.data.message}: ${err.response.data.error}`
+        : err.response?.data?.message || err.message || 'Failed to run model';
+      
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

@@ -26,16 +26,53 @@ export default async function handler(req, res) {
     // Get list of output files
     const files = await fs.promises.readdir(runDir);
     
+    // Check for status.json first
+    if (files.includes('status.json')) {
+      const statusPath = path.join(runDir, 'status.json');
+      const statusContent = await fs.promises.readFile(statusPath, 'utf8');
+      const status = JSON.parse(statusContent);
+      
+      if (status.status === 'created') {
+        return res.status(200).json({
+          runId,
+          status: 'created',
+          message: status.message || 'Model created but not yet executed',
+          modelName: status.modelName,
+          createdAt: status.createdAt
+        });
+      }
+    }
+    
     // Parse requested file type from query
     const fileType = req.query.fileType || 'spectrum1';
     
-    // Find matching file
-    const targetFile = files.find(file => file.endsWith(`.${fileType}`));
+    // Find matching file - handle both with and without period prefix
+    const targetFile = files.find(file => 
+      file.endsWith(`.${fileType}`) || file === fileType
+    );
     
     if (!targetFile) {
+      // Check if we have any output files at all
+      const outputFiles = files.filter(file => 
+        file.endsWith('.spectrum1') || file === 'spectrum1' ||
+        file.endsWith('.color1') || file === 'color1' ||
+        file.endsWith('.output1') || file === 'output1'
+      );
+      
+      if (outputFiles.length === 0) {
+        return res.status(404).json({ 
+          message: `No output files found for this model run. The model may still be running or may have failed.`,
+          status: 'no_outputs',
+          availableFiles: files
+        });
+      }
+      
+      // If we have output files but not the requested type
       return res.status(404).json({ 
         message: `No ${fileType} file found for this model run`,
-        availableFiles: files
+        status: 'missing_file_type',
+        availableFiles: files,
+        suggestedFileType: outputFiles[0].split('.').pop() // Suggest an available file type
       });
     }
     

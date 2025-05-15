@@ -2,15 +2,25 @@ import fs from 'fs';
 import path from 'path';
 
 // Import our job queue system
-import jobQueue from '../../../lib/queue/jobQueue';
+let jobQueue;
+try {
+  jobQueue = require('../../lib/queue/jobQueue');
+} catch (error) {
+  console.warn('Job queue not available:', error.message);
+}
 
 export default async function handler(req, res) {
+  console.log('Run-model API called:', req.method);
+  console.log('Request body:', JSON.stringify(req.body, null, 2));
+  
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
   try {
     const { modelName, parameters } = req.body;
+    console.log('Model name:', modelName);
+    console.log('Parameters:', parameters);
 
     if (!modelName) {
       return res.status(400).json({ message: 'Model name is required' });
@@ -29,26 +39,53 @@ export default async function handler(req, res) {
     
     await fs.promises.writeFile(inputFile, inputContent);
 
-    // Add the job to the queue instead of executing directly
-    jobQueue.addJob({
-      runId,
-      modelName,
-      inputFilePath: inputFile,
-      outputDir: runDir
-    });
+    // Check if job queue is available
+    if (jobQueue && typeof jobQueue.addJob === 'function') {
+      // Add the job to the queue
+      jobQueue.addJob({
+        runId,
+        modelName,
+        inputFilePath: inputFile,
+        outputDir: runDir
+      });
 
-    // Return immediately with the job ID
-    return res.status(200).json({
-      message: 'Model queued successfully',
-      runId,
-      status: 'queued'
-    });
+      // Return immediately with the job ID
+      return res.status(200).json({
+        message: 'Model queued successfully',
+        runId,
+        status: 'queued'
+      });
+    } else {
+      // Job queue not available - create a placeholder response
+      console.warn('Job queue not available - model created but not executed');
+      
+      // Create placeholder output files
+      await fs.promises.writeFile(
+        path.join(runDir, 'status.json'),
+        JSON.stringify({
+          status: 'created',
+          message: 'Model created but queue not available',
+          runId,
+          modelName,
+          createdAt: new Date().toISOString()
+        }, null, 2)
+      );
+
+      return res.status(200).json({
+        message: 'Model created (queue unavailable)',
+        runId,
+        status: 'created',
+        note: 'The model has been saved but will need to be run manually'
+      });
+    }
     
   } catch (error) {
-    console.error('Error queuing Starburst99 model:', error);
+    console.error('Error in run-model API:', error);
+    console.error('Error stack:', error.stack);
     return res.status(500).json({ 
       message: 'Failed to queue model',
-      error: error.message
+      error: error.message,
+      details: error.stack
     });
   }
 }
@@ -106,7 +143,7 @@ function generateInputFile(modelName, params = {}) {
   // Convert metallicity to model selection
   let izValue;
   switch(p.metallicity) {
-    case '0.001': izValue = '13'; break;
+    case '0.001': izValue = '11'; break;
     case '0.004': izValue = '12'; break;
     case '0.008': izValue = '13'; break;
     case '0.020': izValue = '14'; break;

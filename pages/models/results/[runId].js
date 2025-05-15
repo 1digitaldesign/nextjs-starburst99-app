@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import axios from 'axios';
@@ -40,6 +40,19 @@ export default function ModelResults() {
         
         // Fetch the default spectrum data
         const response = await axios.get(`/api/model-results/${runId}?fileType=spectrum1`);
+        
+        // Check if the model was only created but not executed
+        if (response.data.status === 'created') {
+          setError(`Model created but not executed: ${response.data.message}`);
+          setModelData(null);
+          setModelInfo({
+            name: response.data.modelName || '',
+            date: response.data.createdAt ? new Date(response.data.createdAt).toLocaleString() : '',
+            parameters: {}
+          });
+          return;
+        }
+        
         setModelData(response.data);
         
         // Extract model info from run ID (format: run-timestamp-randomstring)
@@ -55,6 +68,7 @@ export default function ModelResults() {
       } catch (err) {
         console.error('Error fetching model data:', err);
         setError(err.response?.data?.message || err.message || 'Failed to fetch model results');
+        setModelData(null); // Ensure modelData is null on error
       } finally {
         setLoading(false);
       }
@@ -103,8 +117,8 @@ export default function ModelResults() {
         return (
           <SpectralChart 
             spectrumData={modelData.data.data} 
-            wavelengthUnit={modelData.data.wavelengthUnit} 
-            fluxUnit={modelData.data.fluxUnit} 
+            wavelengthUnit={modelData.data.wavelengthUnit || 'Angstrom'} 
+            fluxUnit={modelData.data.fluxUnit || 'erg/s/cm2/A'} 
           />
         );
         

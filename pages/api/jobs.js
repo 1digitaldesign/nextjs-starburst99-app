@@ -1,4 +1,9 @@
-import jobQueue from '../../lib/queue/jobQueue';
+let jobQueue;
+try {
+  jobQueue = require('../../lib/queue/jobQueue');
+} catch (error) {
+  console.warn('Job queue not available:', error.message);
+}
 
 export default function handler(req, res) {
   if (req.method !== 'GET') {
@@ -6,6 +11,21 @@ export default function handler(req, res) {
   }
   
   try {
+    // Check if queue is available
+    if (!jobQueue || typeof jobQueue.getAllJobs !== 'function') {
+      return res.status(200).json({
+        queueLength: 0,
+        activeJobs: 0,
+        recentlyCompleted: 0,
+        jobs: {
+          queued: [],
+          active: [],
+          completed: []
+        },
+        message: 'Queue system is not available'
+      });
+    }
+    
     // Get all jobs from the queue
     const jobs = jobQueue.getAllJobs();
     

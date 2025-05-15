@@ -35,11 +35,16 @@ export default function Home() {
         ) : apiStatus.error ? (
           <p style={{ color: 'red' }}>API Error: {apiStatus.error}</p>
         ) : (
-          <p style={{ color: 'green' }}>
-            API Status: {apiStatus.data?.status} | 
-            Queue: {apiStatus.data?.queueDisabled ? 'Disabled' : 'Enabled'} | 
-            Environment: {apiStatus.data?.environment}
-          </p>
+          <div>
+            <p style={{ color: 'green' }}>
+              API Status: {apiStatus.data?.status} | 
+              Queue: {apiStatus.data?.queueDisabled ? 'Disabled' : 'Enabled'} | 
+              Environment: {apiStatus.data?.environment}
+            </p>
+            <p style={{ color: apiStatus.data?.edgeConfig?.connected ? 'green' : 'orange' }}>
+              Edge Config: {apiStatus.data?.edgeConfig?.status || 'Unknown'}
+            </p>
+          </div>
         )}
 
         <div className={styles.grid}>

@@ -1,5 +1,7 @@
 import fs from 'fs';
 import path from 'path';
+import { getModelRun } from '../../lib/edge-config';
+import { EdgeConfigKeys, createModelRunData } from '../../lib/edge-config/updater';
 
 // Import our job queue system conditionally
 let jobQueue;
@@ -51,6 +53,23 @@ export default async function handler(req, res) {
     const inputContent = generateInputFile(modelName, parameters);
     
     await fs.promises.writeFile(inputFile, inputContent);
+
+    // Create model run data for Edge Config (read-only from app)
+    const modelRunData = createModelRunData(runId, modelName, parameters);
+    console.log('Model run data prepared for Edge Config:', modelRunData);
+    
+    // Note: Edge Config updates need to be done via Vercel API
+    // The data is prepared here but would be sent to a webhook or API endpoint
+    
+    // Check existing model in Edge Config (if available)
+    try {
+      const existingModel = await getModelRun(runId);
+      if (existingModel) {
+        console.log('Model already exists in Edge Config:', existingModel);
+      }
+    } catch (error) {
+      console.warn('Could not check Edge Config:', error.message);
+    }
 
     // Check if job queue is available
     if (jobQueue && typeof jobQueue.addJob === 'function') {

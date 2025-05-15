@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { getModelRun } from '../../../lib/edge-config';
 
 export default async function handler(req, res) {
   const { runId } = req.query;
@@ -12,6 +13,17 @@ export default async function handler(req, res) {
     // Validate the runId format to prevent directory traversal
     if (!runId || !runId.match(/^run-\d+-[a-z0-9]+$/)) {
       return res.status(400).json({ message: 'Invalid run ID format' });
+    }
+    
+    // Try to get model run from Edge Config first
+    let edgeConfigModel = null;
+    try {
+      edgeConfigModel = await getModelRun(runId);
+      if (edgeConfigModel) {
+        console.log('Found model in Edge Config:', edgeConfigModel);
+      }
+    } catch (error) {
+      console.warn('Could not fetch from Edge Config:', error.message);
     }
     
     const runDir = path.join(process.cwd(), 'model_runs', runId);

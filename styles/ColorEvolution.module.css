@@ -1,0 +1,87 @@
+.container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.controls {
+  margin-bottom: 1.5rem;
+}
+
+.colorToggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.colorOption {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.colorOption input {
+  margin: 0;
+}
+
+.colorLabel {
+  font-size: 0.9rem;
+  color: #333;
+  padding-left: 0.5rem;
+  position: relative;
+  border-left: 4px solid transparent;
+  padding-left: 8px;
+}
+
+.chartWrapper {
+  height: 380px;
+  width: 100%;
+}
+
+.info {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eaeaea;
+}
+
+.info h3 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.info p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.5;
+}
+
+.info ul {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.info li {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.info strong {
+  color: #333;
+}
+
+@media (max-width: 768px) {
+  .chartWrapper {
+    height: 300px;
+  }
+}

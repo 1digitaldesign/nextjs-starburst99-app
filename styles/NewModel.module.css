@@ -16,14 +16,19 @@
   line-height: 1.15;
   font-size: 2.5rem;
   text-align: center;
+  color: #333;
 }
 
 .form {
   width: 100%;
-  max-width: 500px;
+  max-width: 800px;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  background-color: #f9f9f9;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .formGroup {
@@ -34,19 +39,36 @@
 
 .formGroup label {
   font-weight: bold;
+  font-size: 1rem;
+  color: #333;
+}
+
+.formGroup small {
+  color: #666;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
 }
 
 .input,
 .select {
-  padding: 0.5rem;
-  border: 1px solid #ccc;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
+  background-color: white;
+}
+
+.input:focus,
+.select:focus {
+  outline: none;
+  border-color: #0070f3;
+  box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.2);
 }
 
 .radioGroup {
   display: flex;
   gap: 1.5rem;
+  margin-top: 0.5rem;
 }
 
 .radioGroup label {
@@ -54,10 +76,10 @@
   align-items: center;
   gap: 0.5rem;
   font-weight: normal;
+  cursor: pointer;
 }
 
 .button {
-  margin-top: 1rem;
   padding: 0.75rem 1.5rem;
   background-color: #0070f3;
   color: white;
@@ -66,8 +88,75 @@
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.2s;
+  font-weight: 500;
 }
 
 .button:hover {
   background-color: #0051a8;
+}
+
+.button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.formSection {
+  border-top: 1px solid #eaeaea;
+  padding-top: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.sectionTitle {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #333;
+  font-size: 1.3rem;
+}
+
+.formRow {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.formRow .formGroup {
+  flex: 1;
+  min-width: 200px;
+}
+
+.advancedToggle {
+  margin: 1rem 0;
+  display: flex;
+  justify-content: center;
+}
+
+.toggleButton {
+  background: none;
+  border: none;
+  color: #0070f3;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: underline;
+  padding: 0.5rem 1rem;
+}
+
+.toggleButton:hover {
+  color: #0051a8;
+}
+
+.error {
+  background-color: #fff0f0;
+  color: #d32f2f;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid #d32f2f;
+  width: 100%;
+  max-width: 800px;
+}
+
+.formActions {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
 }

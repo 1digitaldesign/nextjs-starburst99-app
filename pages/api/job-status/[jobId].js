@@ -1,4 +1,13 @@
-import jobQueue from '../../../lib/queue/jobQueue';
+// Import conditionally to match run-model.js
+let jobQueue;
+if (process.env.DISABLE_QUEUE_MANAGER === 'false' || !process.env.DISABLE_QUEUE_MANAGER) {
+  try {
+    const getJobQueue = require('../../../lib/queue/singleton');
+    jobQueue = getJobQueue();
+  } catch (error) {
+    console.warn('Job queue not available in job-status:', error.message);
+  }
+}
 
 export default function handler(req, res) {
   if (req.method !== 'GET') {
@@ -15,6 +24,9 @@ export default function handler(req, res) {
     
     // Get the job status
     const status = jobQueue.getJobStatus(jobId);
+    
+    console.log(`Checking status for job ${jobId}:`, status);
+    console.log('All jobs:', jobQueue.getAllJobs());
     
     if (!status) {
       return res.status(404).json({ 

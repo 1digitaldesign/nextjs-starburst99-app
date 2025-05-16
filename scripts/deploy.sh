@@ -29,14 +29,13 @@ if [ -z "$VERCEL_TOKEN" ]; then
     echo ""
     echo "Falling back to login mode..."
     vercel --prod --yes \
-      --env DISABLE_QUEUE_MANAGER=true \
       --name nextjs-starburst99-app \
       --public
 else
     echo "🔑 Using Vercel token for authentication..."
     vercel --prod --yes \
       --token "$VERCEL_TOKEN" \
-      --env DISABLE_QUEUE_MANAGER=true \
+      --env EDGE_CONFIG="$EDGE_CONFIG" \
       --name nextjs-starburst99-app \
       --public
 fi

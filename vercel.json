@@ -7,9 +7,6 @@
       "use": "@vercel/next"
     }
   ],
-  "env": {
-    "DISABLE_QUEUE_MANAGER": "true"
-  },
   "routes": [
     {
       "src": "/api/(.*)",

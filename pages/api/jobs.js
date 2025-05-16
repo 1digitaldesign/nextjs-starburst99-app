@@ -1,7 +1,8 @@
 let jobQueue;
-if (process.env.DISABLE_QUEUE_MANAGER !== 'true') {
+if (process.env.DISABLE_QUEUE_MANAGER === 'false' || !process.env.DISABLE_QUEUE_MANAGER) {
   try {
-    jobQueue = require('../../lib/queue/jobQueue');
+    const getJobQueue = require('../../lib/queue/singleton');
+    jobQueue = getJobQueue();
   } catch (error) {
     console.warn('Job queue not available:', error.message);
   }

@@ -5,9 +5,11 @@ import { EdgeConfigKeys, createModelRunData } from '../../lib/edge-config/update
 
 // Import our job queue system conditionally
 let jobQueue;
-if (process.env.DISABLE_QUEUE_MANAGER !== 'true') {
+if (process.env.DISABLE_QUEUE_MANAGER === 'false' || !process.env.DISABLE_QUEUE_MANAGER) {
   try {
-    jobQueue = require('../../lib/queue/jobQueue');
+    const getJobQueue = require('../../lib/queue/singleton');
+    jobQueue = getJobQueue();
+    console.log('Job queue loaded successfully');
   } catch (error) {
     console.warn('Job queue not available:', error.message);
   }
@@ -74,12 +76,22 @@ export default async function handler(req, res) {
     // Check if job queue is available
     if (jobQueue && typeof jobQueue.addJob === 'function') {
       // Add the job to the queue
-      jobQueue.addJob({
+      const jobId = jobQueue.addJob({
         runId,
         modelName,
         inputFilePath: inputFile,
         outputDir: runDir
       });
+      
+      console.log('Job added to queue:', jobId);
+      
+      // Check job status immediately
+      const jobStatus = jobQueue.getJobStatus(jobId);
+      console.log('Job status after adding:', jobStatus);
+      
+      // Also check all jobs to debug
+      const allJobs = jobQueue.getAllJobs();
+      console.log('All jobs after adding:', JSON.stringify(allJobs, null, 2));
 
       // Return immediately with the job ID
       return res.status(200).json({
